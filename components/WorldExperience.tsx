@@ -540,64 +540,80 @@ export default function WorldExperience() {
 
       <div className="world-layout">
         <aside className="world-sidebar left-sidebar">
-          <div className="sidebar-section-heading">
-            <span>YOUR WORLD</span>
-            <button className="icon-button small" onClick={() => setShowWorldMap(true)} aria-label="Peta dunia">
-              <Map size={15} />
+          <div className="sidebar-label">
+            YOUR WORLD
+            <button
+              className="icon-button small"
+              aria-label="Peta dan pengaturan dunia"
+              onClick={() => setShowWorldMap(true)}
+            >
+              <Settings2 size={15} />
             </button>
           </div>
 
-          <div className="left-sidebar-card active-world-card">
-            <div>
-              <strong>Jelajahi dunia</strong>
-              <small>{rooms.length} lokasi percakapan bertema</small>
-            </div>
-            <span className="active-world-badge">{rooms.length}</span>
-          </div>
+          <button className="world-nav-item active" onClick={() => setShowWorldMap(true)}>
+            <Compass size={17} />
+            <span>Jelajahi dunia</span>
+            <span className="nav-count">{rooms.length}</span>
+          </button>
+          <button
+            className="world-nav-item"
+            onClick={() => {
+              if (remotePlayers.length === 0) {
+                setNotice(demoMode ? "Masuk dengan akun untuk bertemu teman belajar." : "Belum ada teman lain di ruang ini.");
+              } else {
+                setShowMobileChat(true);
+              }
+            }}
+          >
+            <Users size={17} />
+            <span>Teman</span>
+            <span className="nav-count muted-count">{remotePlayers.length}</span>
+          </button>
+          <button className="world-nav-item" onClick={() => setShowMission((value) => !value)}>
+            <BookOpen size={17} />
+            <span>Misi belajar</span>
+            <span className="nav-dot" />
+          </button>
 
-          <div className="world-quick-links">
-            <button type="button"><Users size={16} /> Teman</button>
-            <button type="button"><BookOpen size={16} /> Misi belajar</button>
+          <div className="sidebar-divider" />
+          <div className="sidebar-label">
+            LOKASI &amp; RUANG
+            <span className="sidebar-label-count">{String(rooms.length).padStart(2, "0")}</span>
           </div>
-
-          <div className="sidebar-section-heading tighter">
-            <span>LOKASI & RUANG</span>
-            <strong>{String(rooms.length).padStart(2, "0")}</strong>
-          </div>
-
           <div className="room-list">
-            {rooms.map((item) => {
-              const isActive = item.id === activeRoomId;
-              return (
-                <button
-                  key={item.id}
-                  className={`room-list-item ${isActive ? "active" : ""}`}
-                  onClick={() => requestRoomChange(item.id)}
-                >
-                  <span className="room-list-icon" style={{ background: `${item.color}26` }}>
-                    {locationIcons[item.location]}
-                  </span>
-                  <span className="room-list-copy">
-                    <strong>{item.name}</strong>
-                    <small>
-                      {item.level} · {item.people} belajar
-                    </small>
-                  </span>
-                  <span className="room-list-status" style={{ background: isActive ? item.color : undefined }} />
-                </button>
-              );
-            })}
+            {rooms.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => requestRoomChange(item.id)}
+                className={`room-item ${activeRoomId === item.id ? "selected" : ""}`}
+              >
+                <span className="room-emoji" style={{ background: `${item.color}22` }}>
+                  {locationIcons[item.location]}
+                </span>
+                <span className="room-item-copy">
+                  <strong>{item.name}</strong>
+                  <small>{item.level} · {item.people} belajar</small>
+                </span>
+                {activeRoomId === item.id && <span className="room-selected-dot" />}
+              </button>
+            ))}
           </div>
 
-          <div className="progress-card">
-            <div className="progress-card-icon">
-              <Sparkles size={16} />
-            </div>
+          <div className="sidebar-spacer" />
+          <div className="sidebar-bottom-card">
+            <div className="sidebar-bottom-icon"><Sparkles size={17} /></div>
             <strong>Speak a little more.</strong>
-            <p>Setiap percakapan adalah satu langkah maju dalam maharah kalam.</p>
-            <div className="progress-bar"><span style={{ width: `${Math.min(100, learningCount * 18)}%` }} /></div>
-            <small>{learningCount} dari 8 misi mingguan</small>
+            <p>Setiap percakapan adalah satu langkah maju.</p>
+            <div className="progress-line">
+              <span style={{ width: `${Math.min(100, learningCount * 18)}%` }} />
+            </div>
+            <small>{learningCount} dari 8 misi minggu ini</small>
           </div>
+          <button className="sidebar-footer-link" onClick={() => setShowHelp(true)}>
+            <ShieldCheck size={15} /> Panduan komunitas
+          </button>
         </aside>
 
         <section className="world-main">
