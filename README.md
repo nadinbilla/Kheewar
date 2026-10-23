@@ -1,13 +1,16 @@
-# KalamVerse — Full-stack Arabic Conversation World
+# Kheewar — Full-stack Arabic Conversation World
 
-KalamVerse adalah starter project website pembelajaran **Maharah Kalam** dengan dunia 3D, avatar, lokasi virtual, misi percakapan, chat ruang, autentikasi, dan opsi voice chat antarpengguna. Aplikasi ini dirancang untuk latihan **antarmanusia**, bukan percakapan dengan AI.
+Kheewar adalah starter project website pembelajaran **Maharah Kalam** dengan dunia 3D, avatar, lokasi virtual, misi percakapan, chat ruang, autentikasi, dan opsi voice chat antarpengguna. Aplikasi ini dirancang untuk latihan **antarmanusia**, bukan percakapan dengan AI.
 
 ## Yang sudah tersedia
 
 - Landing page dan UI responsif berbahasa Indonesia.
-- Dunia 3D procedural (tanpa file model berbayar) menggunakan React Three Fiber.
+- Dunia 3D bergaya stylized dengan kafe yang lebih detail, material kayu, jendela, konter kopi, papan menu Arab, tanaman, furnitur, dan lampu gantung.
 - Lima lokasi/ruang: kafe, rumah, kantor, kampus, dan pasar.
-- Avatar dengan nama, bendera negara, warna karakter, dan gerakan WASD/panah.
+- Avatar dengan nama, bendera negara, wajah, pakaian, sepatu, gerakan idle, dan animasi jalan sederhana.
+- Kamera bebas: drag untuk memutar, scroll/pinch untuk zoom, serta pan untuk menggeser pandangan.
+- Kontrol keyboard (WASD/panah) dan D-pad layar sentuh untuk perangkat mobile.
+- Dukungan opsional untuk model `public/models/cafe.glb`/`cafe.gltf` dan `public/models/avatar.glb`/`avatar.gltf`; jika file tidak ada atau gagal dimuat, scene procedural digunakan sebagai fallback.
 - Mode demo yang bisa dibuka tanpa konfigurasi backend.
 - Login/registrasi Supabase Auth.
 - Supabase Realtime Presence/Broadcast untuk kehadiran avatar, posisi, dan chat ruang.
@@ -82,23 +85,20 @@ Token LiveKit dibuat server-side setelah memverifikasi user Supabase. Jangan per
 
 ## 4. Upload ke GitHub
 
-Buat repository baru bernama `kalamverse` di GitHub. Jangan menambahkan `.env.local` ke repository.
+Gunakan repository yang sudah ada: `https://github.com/nadinbilla/Kheewar`. Jangan menambahkan `.env.local` ke repository. Buat branch pengembangan terlebih dahulu agar branch `main` tetap aman.
 
 ```bash
-git init
-git add .
-git commit -m "feat: build KalamVerse Arabic conversation world"
-git branch -M main
-git remote add origin https://github.com/USERNAME/kalamverse.git
-git push -u origin main
+git switch -c improve-kheewar-3d
+git add components/WorldScene.tsx app/globals.css app/page.tsx app/login/page.tsx app/layout.tsx app/api/livekit/token/route.ts lib/config.ts middleware.ts public/models package.json README.md 3D_UPGRADE.md
+git commit -m "Improve Kheewar stylized 3D cafe"
+git push -u origin improve-kheewar-3d
 ```
 
-Ganti `USERNAME` dengan username GitHub kamu.
 
 ## 5. Deploy ke Vercel
 
 1. Buka [Vercel](https://vercel.com/) dan pilih **Add New → Project**.
-2. Import repository `kalamverse` dari GitHub.
+2. Pilih repository `nadinbilla/Kheewar` yang sudah ada.
 3. Framework preset: Next.js; build command dan output dapat memakai default.
 4. Tambahkan environment variables yang sama seperti `.env.local` di Project Settings → Environment Variables. Tambahkan Supabase vars wajib; LiveKit vars hanya jika voice chat diaktifkan.
 5. Deploy.
@@ -122,12 +122,31 @@ lib/
 supabase/schema.sql           # tabel, trigger profil, dan RLS
 ```
 
+## Peningkatan visual 3D Kheewar
+
+- Kafe sekarang menggunakan scene stylized procedural yang lebih rinci sebagai fallback bawaan.
+- `WorldScene.tsx` mendeteksi model lokal `public/models/cafe.glb`/`cafe.gltf` dan `public/models/avatar.glb`/`avatar.gltf`. Model tidak disertakan karena perlu dipilih berdasarkan lisensi dan kualitas; petunjuk format dan orientasi ada di `public/models/README.md`.
+- `cafe.glb` atau `cafe.gltf` menggantikan seluruh interior procedural jika tersedia dan berhasil dimuat. Normalisasikan ukuran serta titik asal model sesuai petunjuk sebelum digunakan.
+- `avatar.glb` atau `avatar.gltf` sebaiknya berupa karakter rigged dengan animasi bernama `Idle` dan `Walk`. Jika model tidak ada/gagal dimuat, avatar procedural tetap ditampilkan.
+- Kamera mendukung rotasi bebas, zoom, dan pan; perangkat sentuh mendapat kontrol D-pad untuk gerak avatar.
+- Kualitas gambar dibatasi pada DPR maksimum 1.45, memakai AdaptiveDpr saat interaksi berat, dan satu directional shadow map 1024 untuk menyeimbangkan detail dengan performa mobile.
+
+## Pengujian yang harus dilakukan setelah instalasi dependency
+
+```bash
+npm install
+npm run build
+npm run dev
+```
+
+Buka `/world`, lalu uji rotasi kamera dengan drag, zoom dengan scroll/pinch, pan kamera, gerak WASD, dan D-pad pada HP. Uji juga mode demo dan backend yang dikonfigurasi. Build penuh belum dapat diverifikasi di lingkungan pembuatan arsip karena akses registry npm mengalami kegagalan DNS (`EAI_AGAIN`); jalankan `npm run build` di laptop atau CI sebelum deploy.
+
 ## Batasan prototype saat ini
 
-- Model avatar dan properti 3D masih dibuat dari geometri dasar; belum memakai model GLB/GLTF khusus.
+- Aset GLB/GLTF eksternal tidak disertakan; scene procedural tetap berjalan sampai kamu menambahkan model yang lisensinya sesuai.
 - Mode demo hanya lokal; realtime antarpengguna memerlukan Supabase yang dikonfigurasi dan dua akun berbeda.
-- Voice chat memerlukan akun LiveKit dan izin mikrofon di browser.
-- Pencarian partner otomatis, daftar teman persisten, gerak animasi berjalan, moderasi lanjutan, dan evaluasi pelafalan belum diimplementasikan penuh.
+- Voice chat memerlukan akun LiveKit, konfigurasi server, dan izin mikrofon.
+- Pencarian partner otomatis, daftar teman persisten, moderasi lanjutan, dan evaluasi pelafalan belum diimplementasikan penuh.
 - Chat persisten memerlukan SQL schema dan kebijakan RLS diterapkan dengan benar.
 - Sebelum peluncuran publik, tinjau aturan Realtime channel, pembatasan spam, validasi profil, laporan/blokir, dan kebijakan perlindungan pengguna.
 

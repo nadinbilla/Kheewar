@@ -15,4 +15,4 @@ export const isLiveKitConfigured = Boolean(
     isRealConfiguration(process.env.LIVEKIT_API_SECRET),
 );
 
-export const appName = "KalamVerse";
+export const appName = "Kheewar";

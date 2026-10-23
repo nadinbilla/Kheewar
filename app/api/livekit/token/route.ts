@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     if (error || !user) return NextResponse.json({ error: "Silakan masuk terlebih dahulu untuk menggunakan voice chat." }, { status: 401 });
 
     const body = await request.json().catch(() => ({}));
-    const roomName = typeof body.roomName === "string" ? body.roomName.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 80) : "kalamverse-lobby";
+    const roomName = typeof body.roomName === "string" ? body.roomName.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 80) : "kheewar-lobby";
     if (!roomName) return NextResponse.json({ error: "Nama ruang tidak valid." }, { status: 400 });
 
     const apiKey = process.env.LIVEKIT_API_KEY;

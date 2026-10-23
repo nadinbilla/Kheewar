@@ -25,7 +25,7 @@ export default function HomePage() {
       <nav className="landing-nav page-wrap">
         <Link href="/" className="brand-lockup">
           <span className="brand-mark">ك</span>
-          <span><strong>KalamVerse</strong><small>Speak Arabic together</small></span>
+          <span><strong>Kheewar</strong><small>Speak Arabic together</small></span>
         </Link>
         <div className="nav-links"><a href="#fitur">Fitur</a><a href="#cara-kerja">Cara kerja</a><Link href="/login">Masuk</Link></div>
         <Link href="/world" className="button button-primary nav-cta">Masuk dunia <ArrowRight size={16} /></Link>
@@ -76,8 +76,8 @@ export default function HomePage() {
 
       <section id="cara-kerja" className="how-section"><div className="page-wrap how-inner"><div className="how-copy"><div className="eyebrow">MULAI DALAM TIGA LANGKAH</div><h2>Temukan partner.<br /><span>Mulai berbicara.</span></h2><p>Pilih lokasi, temukan partner yang sesuai dengan levelmu, lalu selesaikan misi percakapan bersama.</p><Link href="/world" className="button button-primary">Coba prototype <ArrowRight size={16} /></Link></div><div className="steps-list"><div className="step-item"><span className="step-number">01</span><div><strong>Pilih tempat dan level</strong><p>Kafe pemula, kampus menengah, atau ruang percakapan bebas.</p></div><Globe2 size={20} /></div><div className="step-item"><span className="step-number">02</span><div><strong>Bertemu pengguna lain</strong><p>Gunakan ruang publik atau undang teman untuk berlatih berdua.</p></div><Users size={20} /></div><div className="step-item"><span className="step-number">03</span><div><strong>Berbicara, bukan membaca skrip</strong><p>Ikuti misi sebagai panduan, tetapi tentukan sendiri jawabanmu.</p></div><Mic2 size={20} /></div></div></div></section>
 
-      <section className="final-cta page-wrap"><div className="cta-orb">ك</div><div><div className="eyebrow">YUK, MULAI BERBICARA</div><h2>Bahasa tumbuh lewat percakapan.</h2><p>Masuk ke dunia KalamVerse dan mulai perjalanan Maharah Kalam-mu.</p></div><Link href="/world" className="button button-primary button-large">Masuk dunia <ArrowRight size={17} /></Link></section>
-      <footer className="landing-footer page-wrap"><Link href="/" className="brand-lockup"><span className="brand-mark">ك</span><span><strong>KalamVerse</strong><small>Speak Arabic together</small></span></Link><p>Dirancang untuk latihan bahasa Arab antarmanusia.</p><span>© 2026 KalamVerse · Prototype</span></footer>
+      <section className="final-cta page-wrap"><div className="cta-orb">ك</div><div><div className="eyebrow">YUK, MULAI BERBICARA</div><h2>Bahasa tumbuh lewat percakapan.</h2><p>Masuk ke dunia Kheewar dan mulai perjalanan Maharah Kalam-mu.</p></div><Link href="/world" className="button button-primary button-large">Masuk dunia <ArrowRight size={17} /></Link></section>
+      <footer className="landing-footer page-wrap"><Link href="/" className="brand-lockup"><span className="brand-mark">ك</span><span><strong>Kheewar</strong><small>Speak Arabic together</small></span></Link><p>Dirancang untuk latihan bahasa Arab antarmanusia.</p><span>© 2026 Kheewar · Prototype</span></footer>
       {!isSupabaseConfigured && <div className="demo-notice"><span className="online-dot" /> Mode demo aktif · Backend belum dikonfigurasi</div>}
     </main>
   );
