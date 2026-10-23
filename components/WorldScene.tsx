@@ -2,7 +2,6 @@
 
 import {
   AdaptiveDpr,
-  Clone,
   Html,
   OrbitControls,
   PerspectiveCamera,
@@ -21,6 +20,7 @@ import {
   type ReactNode,
 } from "react";
 import * as THREE from "three";
+import { clone as cloneSkeleton } from "three/examples/jsm/utils/SkeletonUtils.js";
 import type { LocationId, RemoteAvatar } from "@/lib/types";
 
 type WorldPosition = { x: number; z: number };
@@ -235,25 +235,48 @@ function AnimatedAvatarModel({ path, movementRef }: { path: string; movementRef?
   const { scene, animations } = useGLTF(path);
   const { actions, names } = useAnimations(animations, root);
   const activeAction = useRef<THREE.AnimationAction | null>(null);
-  const model = useMemo(() => scene, [scene]);
+  // Clone per player so two avatars never animate the same shared GLTF scene.
+  const model = useMemo(() => cloneSkeleton(scene), [scene]);
+  const pivots = useMemo(() => ({
+    leftArm: model.getObjectByName("Arm_L"),
+    rightArm: model.getObjectByName("Arm_R"),
+    leftLeg: model.getObjectByName("Leg_L"),
+    rightLeg: model.getObjectByName("Leg_R"),
+    head: model.getObjectByName("Head"),
+  }), [model]);
 
-  useFrame(() => {
+  useFrame(({ clock }) => {
     const wantWalk = Boolean(movementRef?.current);
     const desiredName = wantWalk
       ? names.find((name) => /walk|run|move/i.test(name))
       : names.find((name) => /idle|stand|breath/i.test(name));
     const fallbackName = names[0];
     const nextAction = actions[desiredName ?? fallbackName ?? ""];
-    if (nextAction && nextAction !== activeAction.current) {
-      activeAction.current?.fadeOut(0.18);
-      nextAction.reset().fadeIn(0.18).play();
-      activeAction.current = nextAction;
+
+    // Prefer authored GLB clips when available.
+    if (nextAction) {
+      if (nextAction !== activeAction.current) {
+        activeAction.current?.fadeOut(0.18);
+        nextAction.reset().fadeIn(0.18).play();
+        activeAction.current = nextAction;
+      }
+      return;
     }
+
+    // Lightweight procedural walk/idle cycle for Kheewar's bundled starter avatar.
+    const phase = clock.elapsedTime * (wantWalk ? 8.2 : 1.35);
+    const swing = wantWalk ? Math.sin(phase) * 0.38 : Math.sin(phase) * 0.018;
+    if (pivots.leftArm) pivots.leftArm.rotation.x = swing;
+    if (pivots.rightArm) pivots.rightArm.rotation.x = -swing;
+    if (pivots.leftLeg) pivots.leftLeg.rotation.x = -swing * 0.7;
+    if (pivots.rightLeg) pivots.rightLeg.rotation.x = swing * 0.7;
+    if (pivots.head) pivots.head.rotation.z = Math.sin(clock.elapsedTime * 1.1) * 0.008;
+    if (root.current) root.current.rotation.z = wantWalk ? Math.sin(phase) * 0.012 : Math.sin(phase) * 0.004;
   });
 
   return (
     <group ref={root}>
-      <Clone object={model} />
+      <primitive object={model} dispose={null} />
     </group>
   );
 }

@@ -1,4 +1,4 @@
--- KalamVerse database schema for Supabase
+-- Kheewar database schema for Supabase
 -- Run this file in Supabase Dashboard > SQL Editor.
 
 create extension if not exists pgcrypto;
