@@ -21,7 +21,7 @@ import {
 } from "react";
 import * as THREE from "three";
 import { clone as cloneSkeleton } from "three/examples/jsm/utils/SkeletonUtils.js";
-import type { LocationId, RemoteAvatar } from "@/lib/types";
+import type { AvatarVariant, LocationId, RemoteAvatar } from "@/lib/types";
 
 type WorldPosition = { x: number; z: number };
 type MovementState = { current: boolean };
@@ -30,6 +30,7 @@ type Props = {
   displayName: string;
   countryFlag: string;
   avatarColor: string;
+  avatarVariant: AvatarVariant;
   remotePlayers: RemoteAvatar[];
   onPositionChange: (position: WorldPosition) => void;
 };
@@ -40,7 +41,9 @@ type AvatarProps = {
   z: number;
   color: string;
   flag: string;
+  variant: AvatarVariant;
   isMe?: boolean;
+  rotationY?: number;
   movementRef?: MovementState;
   avatarModelPath: string | null;
 };
@@ -109,123 +112,210 @@ function AvatarNameTag({ name, flag, isMe }: { name: string; flag: string; isMe:
   );
 }
 
-function ProceduralAvatarBody({ color, movementRef }: { color: string; movementRef?: MovementState }) {
+function FacialFeatures({ skin = "#e0ad88" }: { skin?: string }) {
+  return (
+    <group>
+      {[-1, 1].map((side) => (
+        <group key={side}>
+          <mesh position={[side * 0.095, 1.615, 0.238]}>
+            <sphereGeometry args={[0.036, 10, 8]} />
+            <meshStandardMaterial color="#fff8ef" roughness={0.45} />
+          </mesh>
+          <mesh position={[side * 0.095, 1.615, 0.266]}>
+            <sphereGeometry args={[0.016, 8, 8]} />
+            <meshStandardMaterial color="#2b2726" roughness={0.4} />
+          </mesh>
+          <mesh position={[side * 0.095, 1.67, 0.244]} rotation={[0, 0, side * -0.08]}>
+            <boxGeometry args={[0.072, 0.014, 0.018]} />
+            <meshStandardMaterial color="#4a382f" roughness={0.9} />
+          </mesh>
+          <mesh position={[side * 0.082, 1.545, 0.254]}>
+            <sphereGeometry args={[0.022, 8, 8]} />
+            <meshStandardMaterial color="#e2a9a0" roughness={0.92} />
+          </mesh>
+        </group>
+      ))}
+      <mesh position={[0, 1.553, 0.267]}>
+        <sphereGeometry args={[0.027, 8, 8]} />
+        <meshStandardMaterial color={skin} roughness={0.92} />
+      </mesh>
+      <mesh position={[0, 1.49, 0.257]} rotation={[0, 0, Math.PI]}>
+        <torusGeometry args={[0.045, 0.007, 5, 12, Math.PI]} />
+        <meshStandardMaterial color="#7a4d45" roughness={0.9} />
+      </mesh>
+    </group>
+  );
+}
+
+function ProceduralAvatarBody({
+  color,
+  movementRef,
+  variant,
+}: {
+  color: string;
+  movementRef?: MovementState;
+  variant: AvatarVariant;
+}) {
   const leftArm = useRef<THREE.Group>(null);
   const rightArm = useRef<THREE.Group>(null);
   const leftLeg = useRef<THREE.Group>(null);
   const rightLeg = useRef<THREE.Group>(null);
+  const skin = variant === "female_hijab" ? "#e2b18c" : "#d8a37e";
+  const accent = variant === "female_hijab" ? "#f0ece6" : "#dfe7ef";
 
   useFrame(({ clock }) => {
     const phase = clock.elapsedTime * 8;
     const walking = Boolean(movementRef?.current);
-    const swing = walking ? Math.sin(phase) * 0.48 : Math.sin(clock.elapsedTime * 1.3) * 0.035;
+    const swing = walking ? Math.sin(phase) * 0.46 : Math.sin(clock.elapsedTime * 1.3) * 0.03;
     if (leftArm.current) leftArm.current.rotation.x = swing;
     if (rightArm.current) rightArm.current.rotation.x = -swing;
-    if (leftLeg.current) leftLeg.current.rotation.x = walking ? -swing * 0.75 : 0;
-    if (rightLeg.current) rightLeg.current.rotation.x = walking ? swing * 0.75 : 0;
+    if (leftLeg.current) leftLeg.current.rotation.x = walking ? -swing * 0.72 : 0;
+    if (rightLeg.current) rightLeg.current.rotation.x = walking ? swing * 0.72 : 0;
   });
+
+  if (variant === "male_modest") {
+    return (
+      <group>
+        <mesh position={[0, 1.0, 0]} castShadow receiveShadow>
+          <capsuleGeometry args={[0.26, 0.48, 6, 12]} />
+          <meshStandardMaterial color={color} roughness={0.8} />
+        </mesh>
+        <mesh position={[0, 1.08, 0.03]} castShadow>
+          <boxGeometry args={[0.42, 0.42, 0.18]} />
+          <meshStandardMaterial color={accent} roughness={0.75} />
+        </mesh>
+        <mesh position={[0, 1.35, 0]}>
+          <cylinderGeometry args={[0.09, 0.105, 0.16, 12]} />
+          <meshStandardMaterial color={skin} roughness={0.92} />
+        </mesh>
+        <mesh position={[0, 1.59, 0.015]} castShadow>
+          <sphereGeometry args={[0.26, 20, 16]} />
+          <meshStandardMaterial color={skin} roughness={0.86} />
+        </mesh>
+        <mesh position={[0, 1.72, -0.025]}>
+          <sphereGeometry args={[0.265, 18, 12, 0, Math.PI * 2, 0, Math.PI * 0.48]} />
+          <meshStandardMaterial color="#352c28" roughness={0.95} />
+        </mesh>
+        <mesh position={[0, 1.44, 0.26]}>
+          <boxGeometry args={[0.035, 0.055, 0.02]} />
+          <meshStandardMaterial color="#8f6a54" roughness={0.9} />
+        </mesh>
+        <group ref={leftArm} position={[-0.28, 1.07, 0]}>
+          <mesh position={[0, -0.19, 0]} rotation={[0, 0, 0.12]} castShadow>
+            <capsuleGeometry args={[0.08, 0.29, 4, 8]} />
+            <meshStandardMaterial color={color} roughness={0.82} />
+          </mesh>
+          <mesh position={[0, -0.405, 0.015]}>
+            <sphereGeometry args={[0.075, 12, 10]} />
+            <meshStandardMaterial color={skin} roughness={0.88} />
+          </mesh>
+        </group>
+        <group ref={rightArm} position={[0.28, 1.07, 0]}>
+          <mesh position={[0, -0.19, 0]} rotation={[0, 0, -0.12]} castShadow>
+            <capsuleGeometry args={[0.08, 0.29, 4, 8]} />
+            <meshStandardMaterial color={color} roughness={0.82} />
+          </mesh>
+          <mesh position={[0, -0.405, 0.015]}>
+            <sphereGeometry args={[0.075, 12, 10]} />
+            <meshStandardMaterial color={skin} roughness={0.88} />
+          </mesh>
+        </group>
+        <group ref={leftLeg} position={[-0.11, 0.53, 0]}>
+          <mesh position={[0, -0.18, 0]} castShadow>
+            <capsuleGeometry args={[0.1, 0.28, 4, 8]} />
+            <meshStandardMaterial color="#31455a" roughness={0.85} />
+          </mesh>
+          <mesh position={[0, -0.375, 0.05]} castShadow>
+            <capsuleGeometry args={[0.09, 0.13, 3, 8]} />
+            <meshStandardMaterial color="#e8ebf0" roughness={0.75} />
+          </mesh>
+        </group>
+        <group ref={rightLeg} position={[0.11, 0.53, 0]}>
+          <mesh position={[0, -0.18, 0]} castShadow>
+            <capsuleGeometry args={[0.1, 0.28, 4, 8]} />
+            <meshStandardMaterial color="#31455a" roughness={0.85} />
+          </mesh>
+          <mesh position={[0, -0.375, 0.05]} castShadow>
+            <capsuleGeometry args={[0.09, 0.13, 3, 8]} />
+            <meshStandardMaterial color="#e8ebf0" roughness={0.75} />
+          </mesh>
+        </group>
+        <FacialFeatures skin={skin} />
+      </group>
+    );
+  }
 
   return (
     <group>
-      {/* Body and clothing */}
-      <mesh position={[0, 0.91, 0]} castShadow receiveShadow>
-        <capsuleGeometry args={[0.285, 0.53, 5, 12]} />
-        <meshStandardMaterial color={color} roughness={0.78} />
-      </mesh>
-      <mesh position={[0, 1.19, 0]} castShadow>
-        <sphereGeometry args={[0.285, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.42]} />
+      <mesh position={[0, 0.93, 0]} castShadow receiveShadow>
+        <capsuleGeometry args={[0.29, 0.62, 6, 14]} />
         <meshStandardMaterial color={color} roughness={0.8} />
       </mesh>
-      <mesh position={[0, 1.235, 0.015]}>
-        <torusGeometry args={[0.105, 0.025, 6, 12]} />
-        <meshStandardMaterial color="#f3dfbd" roughness={0.65} />
+      <mesh position={[0, 1.2, 0]} castShadow>
+        <sphereGeometry args={[0.295, 18, 14, 0, Math.PI * 2, 0, Math.PI * 0.48]} />
+        <meshStandardMaterial color={color} roughness={0.82} />
       </mesh>
-      <mesh position={[0, 1.25, 0.005]}>
-        <cylinderGeometry args={[0.055, 0.065, 0.12, 10]} />
-        <meshStandardMaterial color="#d7a078" roughness={0.9} />
+      <mesh position={[0, 1.35, 0]}>
+        <cylinderGeometry args={[0.085, 0.105, 0.16, 12]} />
+        <meshStandardMaterial color={skin} roughness={0.92} />
       </mesh>
-
-      {/* Arms are separate pivots so the idle and walk cycles feel alive. */}
+      <mesh position={[0, 1.59, 0.015]} castShadow>
+        <sphereGeometry args={[0.26, 20, 16]} />
+        <meshStandardMaterial color={skin} roughness={0.86} />
+      </mesh>
+      <mesh position={[0, 1.7, 0.005]} castShadow>
+        <sphereGeometry args={[0.31, 22, 16, 0, Math.PI * 2, 0, Math.PI * 0.65]} />
+        <meshStandardMaterial color={color} roughness={0.84} />
+      </mesh>
+      <mesh position={[0, 1.48, -0.02]}>
+        <sphereGeometry args={[0.29, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.42]} />
+        <meshStandardMaterial color="#263242" roughness={0.95} />
+      </mesh>
+      <mesh position={[0, 1.32, 0.16]} rotation={[0.48, 0, 0]} castShadow>
+        <coneGeometry args={[0.19, 0.56, 16]} />
+        <meshStandardMaterial color={color} roughness={0.82} />
+      </mesh>
       <group ref={leftArm} position={[-0.29, 1.08, 0]}>
         <mesh position={[0, -0.2, 0]} rotation={[0, 0, 0.12]} castShadow>
-          <capsuleGeometry args={[0.085, 0.31, 4, 8]} />
+          <capsuleGeometry args={[0.082, 0.31, 4, 8]} />
           <meshStandardMaterial color={color} roughness={0.82} />
         </mesh>
         <mesh position={[0, -0.405, 0.015]}>
-          <sphereGeometry args={[0.078, 12, 10]} />
-          <meshStandardMaterial color="#c98f6c" roughness={0.88} />
+          <sphereGeometry args={[0.075, 12, 10]} />
+          <meshStandardMaterial color={skin} roughness={0.88} />
         </mesh>
       </group>
       <group ref={rightArm} position={[0.29, 1.08, 0]}>
         <mesh position={[0, -0.2, 0]} rotation={[0, 0, -0.12]} castShadow>
-          <capsuleGeometry args={[0.085, 0.31, 4, 8]} />
+          <capsuleGeometry args={[0.082, 0.31, 4, 8]} />
           <meshStandardMaterial color={color} roughness={0.82} />
         </mesh>
         <mesh position={[0, -0.405, 0.015]}>
-          <sphereGeometry args={[0.078, 12, 10]} />
-          <meshStandardMaterial color="#c98f6c" roughness={0.88} />
+          <sphereGeometry args={[0.075, 12, 10]} />
+          <meshStandardMaterial color={skin} roughness={0.88} />
         </mesh>
       </group>
-
-      {/* Legs and shoes */}
-      <group ref={leftLeg} position={[-0.12, 0.53, 0]}>
-        <mesh position={[0, -0.17, 0]} castShadow>
-          <capsuleGeometry args={[0.105, 0.25, 4, 8]} />
+      <group ref={leftLeg} position={[-0.11, 0.54, 0.02]}>
+        <mesh position={[0, -0.16, 0]} castShadow>
+          <capsuleGeometry args={[0.095, 0.22, 4, 8]} />
           <meshStandardMaterial color="#35485b" roughness={0.85} />
         </mesh>
-        <mesh position={[0, -0.34, 0.055]} castShadow>
-          <capsuleGeometry args={[0.09, 0.13, 3, 8]} />
-          <meshStandardMaterial color="#f0e9dc" roughness={0.8} />
+        <mesh position={[0, -0.33, 0.055]} castShadow>
+          <capsuleGeometry args={[0.09, 0.12, 3, 8]} />
+          <meshStandardMaterial color="#ece4d7" roughness={0.8} />
         </mesh>
       </group>
-      <group ref={rightLeg} position={[0.12, 0.53, 0]}>
-        <mesh position={[0, -0.17, 0]} castShadow>
-          <capsuleGeometry args={[0.105, 0.25, 4, 8]} />
+      <group ref={rightLeg} position={[0.11, 0.54, 0.02]}>
+        <mesh position={[0, -0.16, 0]} castShadow>
+          <capsuleGeometry args={[0.095, 0.22, 4, 8]} />
           <meshStandardMaterial color="#35485b" roughness={0.85} />
         </mesh>
-        <mesh position={[0, -0.34, 0.055]} castShadow>
-          <capsuleGeometry args={[0.09, 0.13, 3, 8]} />
-          <meshStandardMaterial color="#f0e9dc" roughness={0.8} />
+        <mesh position={[0, -0.33, 0.055]} castShadow>
+          <capsuleGeometry args={[0.09, 0.12, 3, 8]} />
+          <meshStandardMaterial color="#ece4d7" roughness={0.8} />
         </mesh>
       </group>
-
-      {/* Neck, face, hair and simple readable facial features */}
-      <mesh position={[0, 1.34, 0]}>
-        <cylinderGeometry args={[0.09, 0.105, 0.16, 12]} />
-        <meshStandardMaterial color="#c98f6c" roughness={0.92} />
-      </mesh>
-      <mesh position={[0, 1.59, 0.015]} castShadow>
-        <sphereGeometry args={[0.265, 20, 16]} />
-        <meshStandardMaterial color="#d9a17d" roughness={0.86} />
-      </mesh>
-      <mesh position={[0, 1.71, -0.025]}>
-        <sphereGeometry args={[0.27, 18, 12, 0, Math.PI * 2, 0, Math.PI * 0.55]} />
-        <meshStandardMaterial color="#352a25" roughness={0.96} />
-      </mesh>
-      {[-1, 1].map((side) => (
-        <group key={side}>
-          <mesh position={[side * 0.092, 1.61, 0.246]}>
-            <sphereGeometry args={[0.035, 10, 8]} />
-            <meshStandardMaterial color="#fff8ed" roughness={0.45} />
-          </mesh>
-          <mesh position={[side * 0.092, 1.61, 0.274]}>
-            <sphereGeometry args={[0.017, 8, 8]} />
-            <meshStandardMaterial color="#302a27" roughness={0.45} />
-          </mesh>
-          <mesh position={[side * 0.092, 1.665, 0.246]} rotation={[0, 0, side * -0.08]}>
-            <boxGeometry args={[0.07, 0.015, 0.018]} />
-            <meshStandardMaterial color="#513b30" roughness={0.9} />
-          </mesh>
-        </group>
-      ))}
-      <mesh position={[0, 1.55, 0.269]}>
-        <sphereGeometry args={[0.027, 8, 8]} />
-        <meshStandardMaterial color="#c98f6c" roughness={0.9} />
-      </mesh>
-      <mesh position={[0, 1.49, 0.254]} rotation={[0, 0, Math.PI]}>
-        <torusGeometry args={[0.042, 0.007, 5, 12, Math.PI]} />
-        <meshStandardMaterial color="#70483c" roughness={0.9} />
-      </mesh>
+      <FacialFeatures skin={skin} />
     </group>
   );
 }
@@ -281,7 +371,18 @@ function AnimatedAvatarModel({ path, movementRef }: { path: string; movementRef?
   );
 }
 
-function Avatar({ name, x, z, color, flag, isMe = false, movementRef, avatarModelPath }: AvatarProps) {
+function Avatar({
+  name,
+  x,
+  z,
+  color,
+  flag,
+  variant,
+  isMe = false,
+  rotationY = 0,
+  movementRef,
+  avatarModelPath,
+}: AvatarProps) {
   const group = useRef<THREE.Group>(null);
   useFrame(({ clock }) => {
     if (group.current) {
@@ -291,19 +392,19 @@ function Avatar({ name, x, z, color, flag, isMe = false, movementRef, avatarMode
   });
 
   return (
-    <group ref={group} position={[x, 0, z]}>
+    <group ref={group} position={[x, 0, z]} rotation={[0, rotationY, 0]}>
       <mesh position={[0, 0.035, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <circleGeometry args={[0.48, 24]} />
         <meshBasicMaterial color={isMe ? "#73d9ad" : "#f9f1df"} transparent opacity={isMe ? 0.22 : 0.1} />
       </mesh>
       {avatarModelPath ? (
-        <ModelErrorBoundary fallback={<ProceduralAvatarBody color={color} movementRef={movementRef} />}>
-          <Suspense fallback={<ProceduralAvatarBody color={color} movementRef={movementRef} />}>
+        <ModelErrorBoundary fallback={<ProceduralAvatarBody color={color} movementRef={movementRef} variant={variant} />}>
+          <Suspense fallback={<ProceduralAvatarBody color={color} movementRef={movementRef} variant={variant} />}>
             <AnimatedAvatarModel path={avatarModelPath} movementRef={movementRef} />
           </Suspense>
         </ModelErrorBoundary>
       ) : (
-        <ProceduralAvatarBody color={color} movementRef={movementRef} />
+        <ProceduralAvatarBody color={color} movementRef={movementRef} variant={variant} />
       )}
       <AvatarNameTag name={name} flag={flag} isMe={isMe} />
       {isMe && (
@@ -569,6 +670,62 @@ function CafeCounter() {
   );
 }
 
+
+function BottleShelf({ position }: { position: [number, number, number] }) {
+  return (
+    <group position={position}>
+      <mesh position={[0, 0, 0]}>
+        <boxGeometry args={[3.4, 0.12, 0.32]} />
+        <meshStandardMaterial color="#604230" roughness={0.82} />
+      </mesh>
+      {[-1.35, -0.85, -0.38, 0.1, 0.55, 1.0, 1.35].map((x, index) => (
+        <group key={x} position={[x, 0.2, 0]}>
+          <mesh>
+            <cylinderGeometry args={[0.07, 0.08, 0.24 + (index % 3) * 0.07, 8]} />
+            <meshStandardMaterial color={["#ceb17d", "#7ca06d", "#a97256"][index % 3]} roughness={0.45} />
+          </mesh>
+          <mesh position={[0, 0.16, 0]}>
+            <cylinderGeometry args={[0.028, 0.03, 0.08, 8]} />
+            <meshStandardMaterial color="#e5cf9d" roughness={0.5} />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  );
+}
+
+function CafeBaristaNpc() {
+  return (
+    <group position={[0, 0, -4.02]}>
+      <Avatar
+        name="Barista"
+        x={0}
+        z={0}
+        color="#4e657f"
+        flag="☕"
+        variant="male_modest"
+        rotationY={Math.PI}
+        avatarModelPath={null}
+      />
+    </group>
+  );
+}
+
+function CafeGuestNpc({ x, z, rotationY, name, variant, color }: { x: number; z: number; rotationY: number; name: string; variant: AvatarVariant; color: string }) {
+  return (
+    <Avatar
+      name={name}
+      x={x}
+      z={z}
+      color={color}
+      flag="💬"
+      variant={variant}
+      rotationY={rotationY}
+      avatarModelPath={null}
+    />
+  );
+}
+
 function ProceduralCafe() {
   return (
     <group>
@@ -637,7 +794,10 @@ function ProceduralCafe() {
       <CafeSign />
       <CafeMenuBoard x={-1.7} title="قائمة المقهى" items={["قهوة عربية", "شاي بالنعناع", "كعك طازج"]} />
       <CafeMenuBoard x={1.7} title="أهلاً وسهلاً" items={["تفضّل", "ماذا تريد؟", "شكراً لك"]} />
+      <BottleShelf position={[0, 3.78, -5.28]} />
+      <BottleShelf position={[0, 3.28, -5.28]} />
       <CafeCounter />
+      <CafeBaristaNpc />
       {[-2.1, 0, 2.1].map((x) => <PendantLamp key={x} x={x} />)}
 
       {/* Seating is arranged around the walking lane, leaving room for avatars. */}
@@ -656,6 +816,8 @@ function ProceduralCafe() {
       <Plant position={[5.45, 0, -4.35]} scale={1.1} />
       <Plant position={[-5.35, 0, 4.45]} scale={0.92} />
       <Plant position={[5.35, 0, 4.45]} scale={0.92} />
+      <CafeGuestNpc x={-2.72} z={0.72} rotationY={0.35} name="Alya" variant="female_hijab" color="#6f88a9" />
+      <CafeGuestNpc x={2.7} z={0.74} rotationY={-0.35} name="Rafi" variant="male_modest" color="#8a7bb7" />
     </group>
   );
 }
@@ -728,7 +890,7 @@ function OtherEnvironment({ location }: { location: Exclude<LocationId, "cafe"> 
   );
 }
 
-function PlayerController({ displayName, countryFlag, avatarColor, onPositionChange, avatarModelPath }: { displayName: string; countryFlag: string; avatarColor: string; onPositionChange: Props["onPositionChange"]; avatarModelPath: string | null }) {
+function PlayerController({ displayName, countryFlag, avatarColor, avatarVariant, onPositionChange, avatarModelPath }: { displayName: string; countryFlag: string; avatarColor: string; avatarVariant: AvatarVariant; onPositionChange: Props["onPositionChange"]; avatarModelPath: string | null }) {
   const group = useRef<THREE.Group>(null);
   const keys = useRef<Record<string, boolean>>({});
   const moving = useRef(false);
@@ -788,12 +950,12 @@ function PlayerController({ displayName, countryFlag, avatarColor, onPositionCha
 
   return (
     <group ref={group} position={[0, 0, 2]}>
-      <Avatar name={displayName} x={0} z={0} color={avatarColor} flag={countryFlag} isMe movementRef={moving} avatarModelPath={avatarModelPath} />
+      <Avatar name={displayName} x={0} z={0} color={avatarColor} flag={countryFlag} variant={avatarVariant} isMe movementRef={moving} avatarModelPath={avatarModelPath} />
     </group>
   );
 }
 
-function SceneContents({ location, displayName, countryFlag, avatarColor, remotePlayers, onPositionChange }: Props) {
+function SceneContents({ location, displayName, countryFlag, avatarColor, avatarVariant, remotePlayers, onPositionChange }: Props) {
   const cafeModelPath = usePublicAssetPath(CAFE_MODEL_PATHS);
   const avatarModelPath = usePublicAssetPath(AVATAR_MODEL_PATHS);
 
@@ -839,8 +1001,9 @@ function SceneContents({ location, displayName, countryFlag, avatarColor, remote
         displayName={displayName}
         countryFlag={countryFlag}
         avatarColor={avatarColor}
+        avatarVariant={avatarVariant}
         onPositionChange={onPositionChange}
-        avatarModelPath={avatarModelPath}
+        avatarModelPath={null}
       />
       {remotePlayers.map((player) => (
         <Avatar
@@ -850,7 +1013,8 @@ function SceneContents({ location, displayName, countryFlag, avatarColor, remote
           z={player.z}
           color={player.color ?? "#8a9de0"}
           flag={player.country_code === "ID" ? "🇮🇩" : player.country_code === "EG" ? "🇪🇬" : player.country_code === "SA" ? "🇸🇦" : "🌐"}
-          avatarModelPath={avatarModelPath}
+          variant={player.avatar_variant ?? "female_hijab"}
+          avatarModelPath={null}
         />
       ))}
     </>

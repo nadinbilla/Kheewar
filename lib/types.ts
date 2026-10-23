@@ -1,4 +1,5 @@
 export type LocationId = "cafe" | "home" | "office" | "campus" | "market";
+export type AvatarVariant = "female_hijab" | "male_modest";
 
 export type ConversationRoom = {
   id: string;
@@ -9,6 +10,12 @@ export type ConversationRoom = {
   mission: string;
   people: number;
   color: string;
+  mood: string;
+  starterPhrase: {
+    arabic: string;
+    latin: string;
+    translation: string;
+  };
 };
 
 export type ChatMessage = {
@@ -32,6 +39,7 @@ export type RemoteAvatar = {
   x: number;
   z: number;
   color?: string;
+  avatar_variant?: AvatarVariant;
 };
 
 export type UserProfile = {
@@ -40,4 +48,5 @@ export type UserProfile = {
   country_code: string;
   level: string;
   avatar_color: string;
+  avatar_variant: AvatarVariant;
 };

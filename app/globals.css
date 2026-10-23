@@ -27,3 +27,46 @@
 .scene-camera-hint{position:absolute;z-index:4;top:auto;bottom:55px;right:12px;padding:6px 8px;border:1px solid #ffffffa6;border-radius:7px;background:#ffffffb8;color:#617466;font-size:8px;pointer-events:none;backdrop-filter:blur(6px)}
 @media(hover:none),(pointer:coarse){.scene-touch-controls{display:grid}.scene-help-chip{display:none}.scene-camera-hint{top:auto;right:12px;bottom:14px;max-width:120px;text-align:right}}
 @media(max-width:520px){.scene-touch-controls{right:8px;bottom:50px;transform:scale(.88);transform-origin:bottom right}.kheewar-cafe-sign{font-size:18px;min-width:130px}.kheewar-menu-board{font-size:10px}.kheewar-menu-board strong{font-size:12px}}
+
+/* ===== Kheewar polish upgrade ===== */
+.topbar-map-button{padding:10px 12px;font-size:11px}
+.room-list-item{align-items:center;text-align:left}
+.room-list-item strong{display:block}
+.room-list-item small{display:block;color:#809082}
+.room-list-status{width:8px;height:8px;border-radius:999px;background:#d8ded7;flex-shrink:0}
+.active-world-card{display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(135deg,#f2f8f5,#ffffff);border:1px solid #e4ece5;border-radius:18px;padding:15px 16px;margin-bottom:14px}
+.active-world-badge{display:grid;place-items:center;min-width:34px;height:34px;border-radius:12px;background:#235b4a;color:#fff;font-weight:800}
+.world-quick-links{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.world-quick-links button{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border:1px solid #e5ebe4;border-radius:12px;background:#fff;color:#466251;font-weight:700}
+.progress-card{margin-top:16px;padding:16px;border:1px solid #e6ece5;border-radius:18px;background:linear-gradient(180deg,#ffffff,#f7fbf8)}
+.progress-card-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:12px;background:#dff3e9;color:#235b4a;margin-bottom:12px}
+.progress-card p{margin:8px 0 12px;color:#758176;line-height:1.6;font-size:11px}
+.progress-bar{height:8px;border-radius:999px;background:#edf2ee;overflow:hidden;margin-bottom:8px}.progress-bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#3c7e67,#7bb696)}
+.progress-card small{color:#8a948b}
+.scene-header-actions{display:flex;gap:8px;align-items:center}
+.scene-action-button{display:inline-flex;align-items:center;gap:7px;padding:10px 12px;border:1px solid #e5ece6;border-radius:12px;background:#fff;color:#496251;font-weight:700}
+.scene-population{display:inline-flex;align-items:center;gap:7px}
+.person-invite-button{border:1px solid #e2e9e2;background:#fff;padding:6px 10px;border-radius:999px;font-size:10px;font-weight:700;color:#2e6550}
+.person-row.person-row-me{background:#f8fbf9}
+.avatar-name-tag{display:flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);box-shadow:0 10px 24px rgba(31,48,39,.14);font-size:10px;color:#33453b;border:1px solid rgba(223,232,225,.9)}
+.avatar-name-tag strong{font-size:10px;line-height:1.2}.avatar-name-tag i{font-style:normal;font-size:8px;font-weight:800;color:#4a8b6b}
+.avatar-name-me{background:rgba(241,255,247,.95)}
+.avatar-variant-grid{display:grid;grid-template-columns:1fr;gap:10px}
+.avatar-variant-grid button{padding:12px;border:1px solid #dfe7df;border-radius:14px;background:#fff;text-align:left;color:#455347}
+.avatar-variant-grid button.selected{border-color:#78a98a;background:#f2fbf6;box-shadow:0 0 0 1px #78a98a inset}
+.avatar-variant-grid strong{display:block;font-size:12px;margin-bottom:4px}.avatar-variant-grid small{display:block;color:#7a867d;line-height:1.5}
+.world-map-modal{max-width:min(860px,calc(100vw - 32px))}
+.world-map-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}
+.world-map-card{padding:18px;border:1px solid #e3ebe4;border-radius:18px;background:#fff;text-align:left;transition:transform .18s,box-shadow .18s,border-color .18s}
+.world-map-card:hover{transform:translateY(-2px);box-shadow:0 16px 30px rgba(31,48,39,.08)}
+.world-map-card.active{border-color:#7caf91;background:#f4fbf7}
+.world-map-badge{width:36px;height:36px;display:grid;place-items:center;border-radius:12px;color:#fff;font-size:18px;margin-bottom:12px}
+.world-map-card strong{display:block;font-size:15px;margin-bottom:4px}.world-map-card small{display:block;color:#6c7b70;margin-bottom:7px}.world-map-card p{margin:0;color:#6e7a70;line-height:1.65;font-size:12px}
+.invite-modal{max-width:min(420px,calc(100vw - 28px));text-align:center}
+.invite-card-head{display:flex;flex-direction:column;align-items:center;gap:10px}
+.invite-people-icon{width:46px;height:46px;display:grid;place-items:center;border-radius:16px;background:linear-gradient(135deg,#f3c3d9,#f29c88);color:#fff}
+.invite-player-avatar{width:72px;height:72px;border-radius:999px;display:grid;place-items:center;margin:16px auto 8px;background:linear-gradient(135deg,#40342f,#7a6454);color:#fff;font:800 22px 'Manrope',sans-serif}
+.invite-player-name{margin:0;font:800 18px 'Manrope',sans-serif}.invite-player-country{display:block;color:#7f8a80;margin-top:4px}.invite-copy{margin:14px 0 0;color:#5f6d63;line-height:1.7}.room-enter-copy{font-size:18px;font-weight:800;color:#3d4d43;margin-top:14px}
+.invite-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.demo-notice{position:fixed;left:50%;top:82px;transform:translateX(-50%);z-index:35;padding:10px 14px;border:1px solid #e2eadf;border-radius:999px;background:#fff;color:#4f5f53;box-shadow:0 12px 30px rgba(31,48,39,.08);display:flex;align-items:center;gap:8px;font-size:11px}
+@media(max-width:760px){.world-map-grid{grid-template-columns:1fr}.invite-actions{grid-template-columns:1fr}.demo-notice{top:66px;font-size:10px;padding:9px 12px}.topbar-map-button{display:none}}

@@ -9,9 +9,14 @@ create table if not exists public.profiles (
   country_code text not null default 'ID' check (char_length(country_code) between 2 and 3),
   level text not null default 'A1' check (level in ('A1', 'A2', 'B1', 'B2')),
   avatar_color text not null default '#d59b71',
+  avatar_variant text not null default 'female_hijab' check (avatar_variant in ('female_hijab', 'male_modest')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.profiles add column if not exists avatar_variant text not null default 'female_hijab';
+alter table public.profiles drop constraint if exists profiles_avatar_variant_check;
+alter table public.profiles add constraint profiles_avatar_variant_check check (avatar_variant in ('female_hijab', 'male_modest'));
 
 create table if not exists public.conversation_messages (
   id uuid primary key default gen_random_uuid(),
@@ -39,11 +44,12 @@ language plpgsql
 security definer set search_path = ''
 as $$
 begin
-  insert into public.profiles (id, display_name, country_code)
+  insert into public.profiles (id, display_name, country_code, avatar_variant)
   values (
     new.id,
     left(coalesce(nullif(trim(new.raw_user_meta_data ->> 'display_name'), ''), split_part(new.email, '@', 1), 'Pembelajar'), 32),
-    coalesce(nullif(new.raw_user_meta_data ->> 'country_code', ''), 'ID')
+    coalesce(nullif(new.raw_user_meta_data ->> 'country_code', ''), 'ID'),
+    coalesce(nullif(new.raw_user_meta_data ->> 'avatar_variant', ''), 'female_hijab')
   )
   on conflict (id) do nothing;
   return new;
