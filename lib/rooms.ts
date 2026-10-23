@@ -93,6 +93,14 @@ export const countries = [
   { code: "TR", name: "Turki", flag: "🇹🇷" },
   { code: "GB", name: "Britania Raya", flag: "🇬🇧" },
   { code: "US", name: "Amerika Serikat", flag: "🇺🇸" },
+  { code: "BN", name: "Brunei", flag: "🇧🇳" },
+  { code: "PK", name: "Pakistan", flag: "🇵🇰" },
+  { code: "IN", name: "India", flag: "🇮🇳" },
+  { code: "BD", name: "Bangladesh", flag: "🇧🇩" },
+  { code: "AU", name: "Australia", flag: "🇦🇺" },
+  { code: "DE", name: "Jerman", flag: "🇩🇪" },
+  { code: "NL", name: "Belanda", flag: "🇳🇱" },
+  { code: "JP", name: "Jepang", flag: "🇯🇵" },
 ];
 
 export function flagFor(code: string) {

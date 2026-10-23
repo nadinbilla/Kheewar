@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { initialAppearance, normalizeAppearance, readDemoProfile, writeDemoProfile } from "@/lib/avatar-options";
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import type { RealtimeChannel, User } from "@supabase/supabase-js";
 import {
@@ -25,6 +26,7 @@ import {
   Settings2,
   ShieldCheck,
   Sparkles,
+  UserRound,
   Users,
   X,
 } from "lucide-react";
@@ -73,8 +75,7 @@ const defaultProfile: UserProfile = {
   display_name: "Tamu Kalam",
   country_code: "ID",
   level: "A1",
-  avatar_color: "#d59b71",
-  avatar_variant: "female_hijab",
+  ...initialAppearance,
 };
 
 function initials(name: string) {
@@ -107,7 +108,7 @@ async function fetchProfileWithFallback(supabase: ReturnType<typeof getSupabaseB
 
   const primary = await supabase
     .from("profiles")
-    .select("id,display_name,country_code,level,avatar_color,avatar_variant")
+    .select("id,display_name,country_code,level,avatar_color,avatar_variant,skin_tone,avatar_headwear,avatar_outfit")
     .eq("id", userId)
     .maybeSingle();
 
@@ -119,7 +120,7 @@ async function fetchProfileWithFallback(supabase: ReturnType<typeof getSupabaseB
     .eq("id", userId)
     .maybeSingle();
 
-  return fallback.data ? { ...fallback.data, avatar_variant: "female_hijab" as AvatarVariant } : null;
+  return fallback.data ? { ...fallback.data, ...normalizeAppearance(fallback.data) } : null;
 }
 
 async function persistProfileWithFallback(
@@ -135,6 +136,9 @@ async function persistProfileWithFallback(
     level: next.level,
     avatar_color: next.avatar_color,
     avatar_variant: next.avatar_variant,
+    skin_tone: next.skin_tone,
+    avatar_headwear: next.avatar_headwear,
+    avatar_outfit: next.avatar_outfit,
   });
 
   if (!primary.error) return primary;
@@ -183,6 +187,8 @@ export default function WorldExperience() {
   useEffect(() => {
     if (!supabase) {
       setAuthReady(true);
+      const cached = readDemoProfile();
+      if (cached) setProfile(p => ({ ...p, ...cached, ...normalizeAppearance(cached as Partial<UserProfile>) } as UserProfile));
       setDemoMode(true);
       return;
     }
@@ -203,7 +209,7 @@ export default function WorldExperience() {
 
           setProfile(
             savedProfile
-              ? { ...defaultProfile, ...savedProfile }
+              ? { ...defaultProfile, ...savedProfile, ...normalizeAppearance(savedProfile) }
               : { ...defaultProfile, id: data.user.id, display_name: fallbackName },
           );
           setDemoMode(false);
@@ -221,7 +227,8 @@ export default function WorldExperience() {
       if (!mounted) return;
       setUser(session?.user ?? null);
       if (!session?.user) {
-        setProfile(defaultProfile);
+        const cached = readDemoProfile();
+        setProfile(cached ? { ...defaultProfile, ...cached, ...normalizeAppearance(cached as Partial<UserProfile>) } as UserProfile : defaultProfile);
         setDemoMode(true);
       }
     });
@@ -252,6 +259,9 @@ export default function WorldExperience() {
           z: nextPosition.z,
           color: profile.avatar_color,
           avatar_variant: profile.avatar_variant,
+          skin_tone: profile.skin_tone,
+          avatar_headwear: profile.avatar_headwear,
+          avatar_outfit: profile.avatar_outfit,
         };
         void channelRef.current.send({ type: "broadcast", event: "avatar", payload: avatarPayload });
         const now = Date.now();
@@ -265,12 +275,15 @@ export default function WorldExperience() {
             z: nextPosition.z,
             color: profile.avatar_color,
             avatar_variant: profile.avatar_variant,
+            skin_tone: profile.skin_tone,
+            avatar_headwear: profile.avatar_headwear,
+            avatar_outfit: profile.avatar_outfit,
             online_at: new Date().toISOString(),
           });
         }
       }
     },
-    [demoMode, profile.avatar_color, profile.avatar_variant, profile.country_code, profile.display_name, user],
+    [demoMode, profile.avatar_color, profile.avatar_variant, profile.skin_tone, profile.avatar_headwear, profile.avatar_outfit, profile.country_code, profile.display_name, user],
   );
 
   useEffect(() => {
@@ -298,6 +311,9 @@ export default function WorldExperience() {
         z?: number;
         color?: string;
         avatar_variant?: AvatarVariant;
+        skin_tone?: string;
+        avatar_headwear?: UserProfile["avatar_headwear"];
+        avatar_outfit?: UserProfile["avatar_outfit"];
       }>();
 
       const next: RemoteAvatar[] = [];
@@ -312,6 +328,9 @@ export default function WorldExperience() {
             z: Number(meta.z ?? -1),
             color: meta.color,
             avatar_variant: meta.avatar_variant ?? "female_hijab",
+            skin_tone: meta.skin_tone,
+            avatar_headwear: meta.avatar_headwear,
+            avatar_outfit: meta.avatar_outfit,
           }),
         );
       });
@@ -330,6 +349,9 @@ export default function WorldExperience() {
           z: Number(payload.z || 0),
           color: String(payload.color || "#8a9de0"),
           avatar_variant: (payload.avatar_variant as AvatarVariant | undefined) ?? "female_hijab",
+          skin_tone: payload.skin_tone as string | undefined,
+          avatar_headwear: payload.avatar_headwear as UserProfile["avatar_headwear"] | undefined,
+          avatar_outfit: payload.avatar_outfit as UserProfile["avatar_outfit"] | undefined,
         };
         return current.some((item) => item.id === avatar.id)
           ? current.map((item) => (item.id === avatar.id ? avatar : item))
@@ -354,6 +376,9 @@ export default function WorldExperience() {
           z: positionRef.current.z,
           color: profile.avatar_color,
           avatar_variant: profile.avatar_variant,
+          skin_tone: profile.skin_tone,
+          avatar_headwear: profile.avatar_headwear,
+          avatar_outfit: profile.avatar_outfit,
           online_at: new Date().toISOString(),
         });
         applyPresence();
@@ -381,6 +406,9 @@ export default function WorldExperience() {
     demoMode,
     profile.avatar_color,
     profile.avatar_variant,
+    profile.skin_tone,
+    profile.avatar_headwear,
+    profile.avatar_outfit,
     profile.country_code,
     profile.display_name,
     supabase,
@@ -394,7 +422,8 @@ export default function WorldExperience() {
       const { error } = await persistProfileWithFallback(supabase, { ...next, id: user.id });
       setNotice(error ? "Profil diperbarui, tetapi database belum mengikuti kolom avatar terbaru." : "Profil berhasil disimpan.");
     } else {
-      setNotice("Profil demo diperbarui untuk sesi ini.");
+      writeDemoProfile(next);
+      setNotice("Profil demo disimpan di browser ini.");
     }
     window.setTimeout(() => setNotice(""), 3200);
   };
@@ -482,6 +511,7 @@ export default function WorldExperience() {
         </div>
 
         <div className="topbar-actions">
+          <Link href="/avatar" className="avatar-edit-shortcut"><UserRound size={15}/> Edit Avatar</Link>
           <button className="button button-quiet topbar-map-button" onClick={() => setShowWorldMap(true)}>
             <Map size={15} /> Peta dunia
           </button>
@@ -609,6 +639,9 @@ export default function WorldExperience() {
               countryFlag={flagFor(profile.country_code)}
               avatarColor={profile.avatar_color}
               avatarVariant={profile.avatar_variant}
+              skinTone={profile.skin_tone}
+              avatarHeadwear={profile.avatar_headwear}
+              avatarOutfit={profile.avatar_outfit}
               remotePlayers={remotePlayers}
               onPositionChange={sendAvatarPosition}
             />
@@ -881,6 +914,7 @@ function ProfileModal({
         <h2 id="profile-title">Profil pembelajar</h2>
         <p className="voice-modal-subtitle">Tampilkan identitas yang akan terlihat oleh partner percakapanmu.</p>
 
+        <Link href="/avatar" className="button button-primary avatar-profile-edit-link"><UserRound size={16}/> Edit avatar 3D dan nama <ArrowRight size={15}/></Link>
         <form
           className="profile-edit-form"
           onSubmit={(event) => {

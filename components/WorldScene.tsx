@@ -22,6 +22,8 @@ import {
 import * as THREE from "three";
 import { clone as cloneSkeleton } from "three/examples/jsm/utils/SkeletonUtils.js";
 import type { AvatarVariant, LocationId, RemoteAvatar } from "@/lib/types";
+import { normalizeAppearance, type AvatarAppearance } from "@/lib/avatar-options";
+import VoxelAvatar from "@/components/avatar/VoxelAvatar";
 
 type WorldPosition = { x: number; z: number };
 type MovementState = { current: boolean };
@@ -31,6 +33,9 @@ type Props = {
   countryFlag: string;
   avatarColor: string;
   avatarVariant: AvatarVariant;
+  skinTone: string;
+  avatarHeadwear: AvatarAppearance["avatar_headwear"];
+  avatarOutfit: AvatarAppearance["avatar_outfit"];
   remotePlayers: RemoteAvatar[];
   onPositionChange: (position: WorldPosition) => void;
 };
@@ -42,6 +47,9 @@ type AvatarProps = {
   color: string;
   flag: string;
   variant: AvatarVariant;
+  skinTone?: string;
+  avatarHeadwear?: AvatarAppearance["avatar_headwear"];
+  avatarOutfit?: AvatarAppearance["avatar_outfit"];
   isMe?: boolean;
   rotationY?: number;
   movementRef?: MovementState;
@@ -102,7 +110,7 @@ class ModelErrorBoundary extends Component<
 
 function AvatarNameTag({ name, flag, isMe }: { name: string; flag: string; isMe: boolean }) {
   return (
-    <Html position={[0, 2.12, 0]} center distanceFactor={10} zIndexRange={[20, 0]}>
+    <Html position={[0, 2.68, 0]} center distanceFactor={5} zIndexRange={[20, 0]} style={{ pointerEvents: "none" }}>
       <div className={`avatar-name-tag ${isMe ? "avatar-name-me" : ""}`}>
         <span>{flag}</span>
         <strong>{name}</strong>
@@ -371,41 +379,15 @@ function AnimatedAvatarModel({ path, movementRef }: { path: string; movementRef?
   );
 }
 
-function Avatar({
-  name,
-  x,
-  z,
-  color,
-  flag,
-  variant,
-  isMe = false,
-  rotationY = 0,
-  movementRef,
-  avatarModelPath,
-}: AvatarProps) {
-  const group = useRef<THREE.Group>(null);
-  useFrame(({ clock }) => {
-    if (group.current) {
-      const bobAmount = movementRef?.current ? 0.035 : 0.012;
-      group.current.position.y = Math.sin(clock.elapsedTime * 2.2 + x * 0.7) * bobAmount;
-    }
-  });
-
+function Avatar({ name, x, z, color, flag, variant, skinTone, avatarHeadwear, avatarOutfit, isMe = false, rotationY = 0, movementRef }: AvatarProps) {
+  const appearance = normalizeAppearance({ avatar_variant: variant, avatar_color: color, skin_tone: skinTone, avatar_headwear: avatarHeadwear, avatar_outfit: avatarOutfit });
   return (
-    <group ref={group} position={[x, 0, z]} rotation={[0, rotationY, 0]}>
+    <group position={[x, 0, z]} rotation={[0, rotationY, 0]}>
       <mesh position={[0, 0.035, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <circleGeometry args={[0.48, 24]} />
         <meshBasicMaterial color={isMe ? "#73d9ad" : "#f9f1df"} transparent opacity={isMe ? 0.22 : 0.1} />
       </mesh>
-      {avatarModelPath ? (
-        <ModelErrorBoundary fallback={<ProceduralAvatarBody color={color} movementRef={movementRef} variant={variant} />}>
-          <Suspense fallback={<ProceduralAvatarBody color={color} movementRef={movementRef} variant={variant} />}>
-            <AnimatedAvatarModel path={avatarModelPath} movementRef={movementRef} />
-          </Suspense>
-        </ModelErrorBoundary>
-      ) : (
-        <ProceduralAvatarBody color={color} movementRef={movementRef} variant={variant} />
-      )}
+      <VoxelAvatar appearance={appearance} movementRef={movementRef} />
       <AvatarNameTag name={name} flag={flag} isMe={isMe} />
       {isMe && (
         <mesh position={[0, 0.045, 0]} rotation={[-Math.PI / 2, 0, 0]}>
@@ -704,7 +686,7 @@ function CafeBaristaNpc() {
         color="#4e657f"
         flag="☕"
         variant="male_modest"
-        rotationY={Math.PI}
+        rotationY={0}
         avatarModelPath={null}
       />
     </group>
@@ -890,7 +872,7 @@ function OtherEnvironment({ location }: { location: Exclude<LocationId, "cafe"> 
   );
 }
 
-function PlayerController({ displayName, countryFlag, avatarColor, avatarVariant, onPositionChange, avatarModelPath }: { displayName: string; countryFlag: string; avatarColor: string; avatarVariant: AvatarVariant; onPositionChange: Props["onPositionChange"]; avatarModelPath: string | null }) {
+function PlayerController({ displayName, countryFlag, avatarColor, avatarVariant, skinTone, avatarHeadwear, avatarOutfit, onPositionChange, avatarModelPath }: { displayName: string; countryFlag: string; avatarColor: string; avatarVariant: AvatarVariant; skinTone: string; avatarHeadwear: AvatarAppearance["avatar_headwear"]; avatarOutfit: AvatarAppearance["avatar_outfit"]; onPositionChange: Props["onPositionChange"]; avatarModelPath: string | null }) {
   const group = useRef<THREE.Group>(null);
   const keys = useRef<Record<string, boolean>>({});
   const moving = useRef(false);
@@ -950,12 +932,12 @@ function PlayerController({ displayName, countryFlag, avatarColor, avatarVariant
 
   return (
     <group ref={group} position={[0, 0, 2]}>
-      <Avatar name={displayName} x={0} z={0} color={avatarColor} flag={countryFlag} variant={avatarVariant} isMe movementRef={moving} avatarModelPath={avatarModelPath} />
+      <Avatar name={displayName} x={0} z={0} color={avatarColor} flag={countryFlag} variant={avatarVariant} skinTone={skinTone} avatarHeadwear={avatarHeadwear} avatarOutfit={avatarOutfit} isMe movementRef={moving} avatarModelPath={avatarModelPath} />
     </group>
   );
 }
 
-function SceneContents({ location, displayName, countryFlag, avatarColor, avatarVariant, remotePlayers, onPositionChange }: Props) {
+function SceneContents({ location, displayName, countryFlag, avatarColor, avatarVariant, skinTone, avatarHeadwear, avatarOutfit, remotePlayers, onPositionChange }: Props) {
   const cafeModelPath = usePublicAssetPath(CAFE_MODEL_PATHS);
   const avatarModelPath = usePublicAssetPath(AVATAR_MODEL_PATHS);
 
@@ -1002,6 +984,9 @@ function SceneContents({ location, displayName, countryFlag, avatarColor, avatar
         countryFlag={countryFlag}
         avatarColor={avatarColor}
         avatarVariant={avatarVariant}
+        skinTone={skinTone}
+        avatarHeadwear={avatarHeadwear}
+        avatarOutfit={avatarOutfit}
         onPositionChange={onPositionChange}
         avatarModelPath={null}
       />
@@ -1014,6 +999,9 @@ function SceneContents({ location, displayName, countryFlag, avatarColor, avatar
           color={player.color ?? "#8a9de0"}
           flag={player.country_code === "ID" ? "🇮🇩" : player.country_code === "EG" ? "🇪🇬" : player.country_code === "SA" ? "🇸🇦" : "🌐"}
           variant={player.avatar_variant ?? "female_hijab"}
+          skinTone={player.skin_tone}
+          avatarHeadwear={player.avatar_headwear}
+          avatarOutfit={player.avatar_outfit}
           avatarModelPath={null}
         />
       ))}

@@ -26,15 +26,15 @@ export default function LoginPage() {
         if (name.trim().length < 2) throw new Error("Nama tampilan minimal 2 karakter.");
         const { data, error: signUpError } = await supabase.auth.signUp({
           email: email.trim(), password,
-          options: { data: { display_name: name.trim(), country_code: "ID" }, emailRedirectTo: `${window.location.origin}/world` },
+          options: { data: { display_name: name.trim(), country_code: "ID" }, emailRedirectTo: `${window.location.origin}/avatar` },
         });
         if (signUpError) throw signUpError;
-        if (data.session) window.location.href = "/world";
+        if (data.session) window.location.href = "/avatar";
         else setMessage("Akun dibuat. Jika konfirmasi email aktif, buka emailmu untuk mengonfirmasi akun sebelum masuk.");
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
         if (signInError) throw signInError;
-        window.location.href = "/world";
+        window.location.href = "/avatar";
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Terjadi kesalahan. Coba lagi.");

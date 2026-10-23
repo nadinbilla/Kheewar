@@ -70,3 +70,6 @@
 .invite-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
 .demo-notice{position:fixed;left:50%;top:82px;transform:translateX(-50%);z-index:35;padding:10px 14px;border:1px solid #e2eadf;border-radius:999px;background:#fff;color:#4f5f53;box-shadow:0 12px 30px rgba(31,48,39,.08);display:flex;align-items:center;gap:8px;font-size:11px}
 @media(max-width:760px){.world-map-grid{grid-template-columns:1fr}.invite-actions{grid-template-columns:1fr}.demo-notice{top:66px;font-size:10px;padding:9px 12px}.topbar-map-button{display:none}}
+.avatar-edit-shortcut{display:inline-flex;align-items:center;gap:7px;border:1px solid #d8eee5;border-radius:999px;padding:8px 11px;font-size:10px;font-weight:800;color:#147d6d;background:#e8f9f3;white-space:nowrap}
+.avatar-profile-edit-link{display:flex;width:100%;padding:12px;margin:12px 0;justify-content:center;font-size:11px}
+@media(max-width:520px){.avatar-edit-shortcut{font-size:0;padding:8px}.avatar-edit-shortcut svg{width:17px;height:17px}}

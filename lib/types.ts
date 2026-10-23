@@ -40,6 +40,9 @@ export type RemoteAvatar = {
   z: number;
   color?: string;
   avatar_variant?: AvatarVariant;
+  skin_tone?: string;
+  avatar_headwear?: "hijab" | "khimar" | "peci" | "none";
+  avatar_outfit?: "casual" | "formal" | "traditional";
 };
 
 export type UserProfile = {
@@ -49,4 +52,7 @@ export type UserProfile = {
   level: string;
   avatar_color: string;
   avatar_variant: AvatarVariant;
+  skin_tone: string;
+  avatar_headwear: "hijab" | "khimar" | "peci" | "none";
+  avatar_outfit: "casual" | "formal" | "traditional";
 };

@@ -10,11 +10,17 @@ create table if not exists public.profiles (
   level text not null default 'A1' check (level in ('A1', 'A2', 'B1', 'B2')),
   avatar_color text not null default '#d59b71',
   avatar_variant text not null default 'female_hijab' check (avatar_variant in ('female_hijab', 'male_modest')),
+  skin_tone text not null default '#dba273',
+  avatar_headwear text not null default 'hijab',
+  avatar_outfit text not null default 'traditional',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
 alter table public.profiles add column if not exists avatar_variant text not null default 'female_hijab';
+alter table public.profiles add column if not exists skin_tone text not null default '#dba273';
+alter table public.profiles add column if not exists avatar_headwear text not null default 'hijab';
+alter table public.profiles add column if not exists avatar_outfit text not null default 'traditional';
 alter table public.profiles drop constraint if exists profiles_avatar_variant_check;
 alter table public.profiles add constraint profiles_avatar_variant_check check (avatar_variant in ('female_hijab', 'male_modest'));
 

@@ -28,7 +28,7 @@ export default function HomePage() {
           <span><strong>Kheewar</strong><small>Speak Arabic together</small></span>
         </Link>
         <div className="nav-links"><a href="#fitur">Fitur</a><a href="#cara-kerja">Cara kerja</a><Link href="/login">Masuk</Link></div>
-        <Link href="/world" className="button button-primary nav-cta">Masuk dunia <ArrowRight size={16} /></Link>
+        <Link href="/avatar" className="button button-primary nav-cta">Buat Avatar <ArrowRight size={16} /></Link>
       </nav>
 
       <section className="hero page-wrap">
@@ -37,7 +37,7 @@ export default function HomePage() {
           <h1>Bahasa Arab jadi hidup saat kamu <span>bertemu.</span></h1>
           <p className="hero-lead">Masuki dunia 3D, temui teman dari berbagai negara, dan latih percakapan bahasa Arab dalam situasi sehari-hari. Belajar bersama manusia sungguhan—bukan chatbot.</p>
           <div className="hero-actions">
-            <Link href="/world" className="button button-primary button-large"><Sparkles size={17} /> Jelajahi dunia 3D <ArrowRight size={17} /></Link>
+            <Link href="/avatar" className="button button-primary button-large"><Sparkles size={17} /> Buat Avatar 3D <ArrowRight size={17} /></Link>
             <Link href="/login" className="button button-quiet button-large">Buat akun</Link>
           </div>
           <div className="hero-trust"><span><Users size={15} /> Percakapan antarpengguna</span><span><ShieldCheck size={15} /> Ruang belajar aman</span></div>
